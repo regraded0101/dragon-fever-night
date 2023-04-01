@@ -7,7 +7,6 @@ dependencies:
   - geopandas
   - streamlit
   - folium
-  - streamlit_folium
   - requests
   - plotly
 
