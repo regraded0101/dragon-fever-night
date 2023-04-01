@@ -1,5 +1,5 @@
 import subprocess
-subprocess.call(['pip3', 'install', 'plotly'])
+subprocess.call(['pip', 'install', 'plotly'])
 import streamlit as st
 import pandas as pd
 
