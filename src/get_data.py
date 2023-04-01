@@ -17,27 +17,68 @@ class FetchData():
         loc = geolocator.geocode(self.place)
         return loc
 
-    def get_nearest_station_id(self, loc):
+    def get_close_station_ids(self, loc, search_distance=50000):
         stations = Stations()
         stations = stations.nearby(loc.latitude, loc.longitude)
-        station = stations.fetch(1)
-        return station
+        station = stations.fetch()
 
-    def get_weather_data(self):
+        # only return stations within 50kms
+        station = station[station["distance"] <= search_distance]
+        try:
+            if len(station) == 0:
+                raise ValueError(f"`station` is empty, check the `search_distance` value is not too large`")
+            return station
+        except ValueError as error:
+            print(str(error))
+            pass
+                                 
+    def get_all_weather_data(self):
         
         # Get Daily data
         loc = self.get_lat_long()
-        station_id = self.get_nearest_station_id(loc)
+        station_id = self.get_close_station_ids(loc, search_distance=75000)
+        
+        data_list = []
+        for j in range(len(station_id.index)):
+        
+            point_data = Daily(station_id.index.values[j], self.start_date, self.end_date)
+            point_data = point_data.fetch()
 
-        data = Daily(station_id.index.values[0], self.start_date, self.end_date)
-        data = data.fetch()
-        data = data.reset_index()
-        data = data[['time','tavg', 'tmin', 'tmax']]
-        data['location'] = self.place
+            point_data = point_data.reset_index()
+            point_data = point_data[['time','tavg', 'tmin', 'tmax']]
+            point_data['location'] = self.place
 
-        return data
+            # drop any rows where time, tav, tmin, tmax are NA
+            point_data = point_data[(~point_data["tavg"].isna())|
+                                    (~point_data["tmin"].isna())|
+                                    (~point_data["tmax"].isna())|
+                                    (~point_data["time"].isna())
+                                    ]
+            
+            data_list.append(point_data)
 
 
+        return data_list
+        
+    def combine_weather_data(self):
+
+        weather_data_list = self.get_all_weather_data()
+
+        output_data = pd.DataFrame(columns=weather_data_list[0].columns)
+
+        # create a list of all dates that can be removed when date has already been found
+        date_list = pd.date_range(start=self.start_date, end=self.end_date)
+
+        for k in range(len(weather_data_list)):
+            #only select values that are in the date_list so haven't yet been populated
+            weather_data_list[k] = weather_data_list[k][weather_data_list[k]['time'].isin(date_list)]
+
+            output_data = pd.concat([output_data, weather_data_list[k]])
+
+            # update date list to drop dates already included
+            date_list = date_list[~date_list.isin(weather_data_list[k]["time"])]
+
+        return output_data
 
 def get_summary_stats(data):
     """
@@ -65,7 +106,7 @@ if __name__ == '__main__':
     for place in places:
         print(f'Attempting: {place}')
         
-        daily_weather_data = FetchData(place, '2001-01-01', '2022-12-31').get_weather_data()
+        daily_weather_data = FetchData(place, '2001-01-01', '2022-12-31').combine_weather_data()
         monthly_weather_data = get_summary_stats(daily_weather_data)
         weather_data = pd.concat([weather_data, monthly_weather_data])
         print('Success')
