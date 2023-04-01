@@ -1,6 +1,8 @@
 import subprocess
+
 import streamlit as st
 import pandas as pd
+
 
 data_month_year = pd.read_csv('data/france_regions_weather_data.csv')
 # Read in data from the Google Sheet.
@@ -29,6 +31,62 @@ convert_months = {
 }
 
 data_month_year['month'] = data_month_year['month'].replace(convert_months)
+def align_region_names(x):
+    if x == "Rhône Valley, France":
+        return "Rhône, France"
+    elif x in ["Beaujolais, France", "Burgundy, France", "Chablis, France"]:
+        return "Bourgogne, France"
+    elif x in ["Bugey Savoie, France", "Corsica, France"]:
+        return "Not yet mapped"
+    elif x == "Languedoc, France":
+        return "Languedoc-Roussillon, France"
+    elif x == "Loire Valley, France":
+        return "Loire, France"
+    else:
+        return x
+
+data_month_year['name_mapped'] = data_month_year["location"].map(align_region_names)
+
+
+import geopandas as gpd
+import folium
+import requests
+
+
+# URL of the raw GeoJSON file in the GitHub repository
+geojson_url = "https://raw.githubusercontent.com/UCDavisLibrary/wine-ontology/master/examples/france/regions.geojson"
+
+# Send an HTTP GET request to retrieve the GeoJSON data
+response = requests.get(geojson_url)
+
+# Check if the response was successful (i.e. the status code is 200)
+if response.status_code == 200:
+        # Get the GeoJSON data from the response
+    geojson_data = response.json()
+
+    # Read the GeoJSON data into a GeoDataFrame
+    gdf = gpd.GeoDataFrame.from_features(geojson_data["features"])
+
+else:
+    # Print an error message if the response was not successful
+    print("Error retrieving GeoJSON data from GitHub repository.")
+
+gdf['region'] = gdf['region'].str.replace('Region |region ', '')
+gdf['region'] = gdf['region'] + ', France'
+gdf.crs = geojson_data["crs"]["properties"]["name"]
+
+m = folium.Map(location=[gdf.centroid.y.mean(), gdf.centroid.x.mean()], zoom_start=5)
+# Create a choropleth layer based on a column in the GeoPandas object
+folium.GeoJson(
+    gdf,
+    tooltip=folium.GeoJsonTooltip(fields=['region']),
+    style_function=lambda feature: {'fillColor':'#808080', 
+                                                'fillOpacity':0.9, 'weight':0}
+).add_to(m)
+
+
+
+
 
 selected_wine_region = st.sidebar.selectbox("Wine Region", options=data_month_year["location"].unique())
 selected_year = st.sidebar.selectbox("Year", options=data_month_year["year"].sort_values(ascending=False).unique())
@@ -76,3 +134,7 @@ fig.add_annotation(
 )
 
 st.plotly_chart(fig)
+
+from streamlit_folium import st_folium
+
+st_folium(m)
