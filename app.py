@@ -1,7 +1,7 @@
-import subprocess
-
 import streamlit as st
 import pandas as pd
+
+st.set_page_config(page_title='French Wine Weather')
 
 
 data_month_year = pd.read_csv('data/france_regions_weather_data.csv')
@@ -13,6 +13,9 @@ data_month_year = pd.read_csv('data/france_regions_weather_data.csv')
 #     return pd.read_csv(csv_url)
 
 # df = load_data(st.secrets["public_gsheets_url"])
+
+avg_values_data = data_month_year[(data_month_year['month'] >= 3) &
+                                  (data_month_year['month'] <= 10)]
 
 
 convert_months = {
@@ -31,67 +34,31 @@ convert_months = {
 }
 
 data_month_year['month'] = data_month_year['month'].replace(convert_months)
-def align_region_names(x):
-    if x == "Rhône Valley, France":
-        return "Rhône, France"
-    elif x in ["Beaujolais, France", "Burgundy, France", "Chablis, France"]:
-        return "Bourgogne, France"
-    elif x in ["Bugey Savoie, France", "Corsica, France"]:
-        return "Not yet mapped"
-    elif x == "Languedoc, France":
-        return "Languedoc-Roussillon, France"
-    elif x == "Loire Valley, France":
-        return "Loire, France"
-    else:
-        return x
 
-data_month_year['name_mapped'] = data_month_year["location"].map(align_region_names)
-
-
-import geopandas as gpd
-import folium
-import requests
-
-
-# URL of the raw GeoJSON file in the GitHub repository
-geojson_url = "https://raw.githubusercontent.com/UCDavisLibrary/wine-ontology/master/examples/france/regions.geojson"
-
-# Send an HTTP GET request to retrieve the GeoJSON data
-response = requests.get(geojson_url)
-
-# Check if the response was successful (i.e. the status code is 200)
-if response.status_code == 200:
-        # Get the GeoJSON data from the response
-    geojson_data = response.json()
-
-    # Read the GeoJSON data into a GeoDataFrame
-    gdf = gpd.GeoDataFrame.from_features(geojson_data["features"])
-
-else:
-    # Print an error message if the response was not successful
-    print("Error retrieving GeoJSON data from GitHub repository.")
-
-gdf['region'] = gdf['region'].str.replace('Region |region ', '')
-gdf['region'] = gdf['region'] + ', France'
-gdf.crs = geojson_data["crs"]["properties"]["name"]
-
-m = folium.Map(location=[gdf.centroid.y.mean(), gdf.centroid.x.mean()], zoom_start=5)
-# Create a choropleth layer based on a column in the GeoPandas object
-folium.GeoJson(
-    gdf,
-    tooltip=folium.GeoJsonTooltip(fields=['region']),
-    style_function=lambda feature: {'fillColor':'#808080', 
-                                                'fillOpacity':0.9, 'weight':0}
-).add_to(m)
-
-
+def percentage_diff(new, old):
+    return 100*(new - old)/old 
 
 
 
 selected_wine_region = st.sidebar.selectbox("Wine Region", options=data_month_year["location"].unique())
 selected_year = st.sidebar.selectbox("Year", options=data_month_year["year"].sort_values(ascending=False).unique())
 
+avg_values_data = avg_values_data[(avg_values_data['year'] == selected_year) & 
+                                  (avg_values_data['location'] == selected_wine_region)]
+
+avg_growing_temp = avg_values_data['tavg'].mean()
+avg_growing_temp_monthly = avg_values_data['tavg_month'].mean()
+
+min_growing_temp = avg_values_data['tmin'].min()
+min_growing_temp_monthly = avg_values_data['tmin_month'].min()
+
+max_growing_temp = avg_values_data['tmax'].max()
+max_growing_temp_monthly = avg_values_data['tmax_month'].max()
+
+
+
 plot_data = data_month_year[(data_month_year['year'] == selected_year) & (data_month_year['location'] == selected_wine_region)]
+
 
 
 import plotly.graph_objects as go
@@ -133,8 +100,54 @@ fig.add_annotation(
     showarrow=False
 )
 
+
+import plotly.express as px
+
+stationsData = pd.read_csv('data/france-weather-stations.csv')
+
+mapData = stationsData[stationsData['wine_region'] == selected_wine_region]
+fig_map = px.scatter_geo(
+    mapData,
+    lon="longitude",
+    lat="latitude",
+    scope="europe",
+    hover_data=["hover_text"],
+    title=f"Weather Station Data for {selected_wine_region}",
+    )
+
+# Set the zoom level
+fig_map.update_layout(geo=dict(
+        scope='europe',
+        projection_scale=5,
+        center=dict(lat=46.2276, lon=2.2137)
+    ),
+    margin=dict(l=0, r=0, t=50, b=0),
+    title={
+        "x":0.28,
+        "y":0.95
+    }
+)
+
+fig_map.update_traces(hovertemplate='%{customdata[0]}')
+
+col1, col2= st.columns([1,2])
+
+
+col1.metric("Average Growing Temperature", 
+            f"{round(avg_growing_temp,1)} {chr(176)}",
+            f"{round(percentage_diff(avg_growing_temp, avg_growing_temp_monthly),1)}%")
+
+col1.metric("Minimum Growing Temperature", 
+            f"{round(min_growing_temp,1)} {chr(176)}",
+            f"{round(percentage_diff(min_growing_temp, min_growing_temp_monthly),1)}%")
+
+col1.metric("Maximum Growing Temperature", 
+            f"{round(max_growing_temp,1)} {chr(176)}",
+            f"{round(percentage_diff(max_growing_temp, max_growing_temp_monthly),1)}%")
+col2.plotly_chart(fig_map)
+
+
+#col1, col2 = st.columns(2)
+#with col1:
+#with col2:
 st.plotly_chart(fig)
-
-from streamlit_folium import st_folium
-
-st_folium(m)

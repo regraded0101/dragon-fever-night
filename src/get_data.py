@@ -17,7 +17,7 @@ class FetchData():
         loc = geolocator.geocode(self.place)
         return loc
 
-    def get_close_station_ids(self, loc, search_distance=50000):
+    def get_close_station_ids(self, loc, search_distance=75000):
         stations = Stations()
         stations = stations.nearby(loc.latitude, loc.longitude)
         station = stations.fetch()
@@ -101,14 +101,30 @@ if __name__ == '__main__':
         places = [row[0] for row in reader]
         places = places[1:] # drop the header
 
+    start = '2000-01-01'
+    end = '2022-12-31'
     weather_data = pd.DataFrame()
 
     for place in places:
         print(f'Attempting: {place}')
         
-        daily_weather_data = FetchData(place, '2001-01-01', '2022-12-31').combine_weather_data()
+        daily_weather_data = FetchData(place, start, end).combine_weather_data()
         monthly_weather_data = get_summary_stats(daily_weather_data)
         weather_data = pd.concat([weather_data, monthly_weather_data])
         print('Success')
     
     weather_data.to_csv('data/france_regions_weather_data.csv', index=False)
+
+    station_data = pd.DataFrame()
+    print('Creating weather stations data...')
+
+    for place in places:
+        stationClass = FetchData(place, start, end)
+        stationClassLoc = stationClass.get_lat_long()
+        placeStationData = stationClass.get_close_station_ids(stationClassLoc)
+        placeStationData['hover_text'] = placeStationData.apply(lambda x: f'<b>{x["name"]}</b><br>Latitude: {x["latitude"]}<br>Longitude: {x["longitude"]:,}<br>Elevation: {x["elevation"]}', axis=1)
+        placeStationData['wine_region'] = place
+        station_data = pd.concat([station_data, placeStationData])
+
+    print('Finished created weather stations data')
+    station_data.to_csv('data/france-weather-stations.csv')
