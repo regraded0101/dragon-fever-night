@@ -70,7 +70,12 @@ fig.update_layout(
         yaxis=dict(range=[-10, 45],
                    showticklabels=False,
                    showgrid=False
-                   )
+                   ),
+        legend=dict(
+                    x=0.5,
+                    y=-0.1,
+                    orientation='h'
+        )
 )
 fig.add_vline(
     x = 'Mar',
