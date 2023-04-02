@@ -1,4 +1,6 @@
 plotly==5.14.0
 pandas==1.5.3
 streamlit==1.20.0
+gsheetsdb
+google-auth-oauthlib
 # Meteostat==1.6.5
