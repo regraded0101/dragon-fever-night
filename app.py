@@ -73,7 +73,7 @@ fig.update_layout(
                    ),
         legend=dict(
                     x=-0.1,
-                    y=0.95,
+                    y=1.4,
                     traceorder='normal',
                     orientation='v'
         ),
