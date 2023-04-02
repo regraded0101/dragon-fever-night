@@ -144,7 +144,7 @@ col3.metric("Maximum Growing Temperature",
             f"{round(max_growing_temp,1)} {chr(176)}",
             f"{round(percentage_diff(max_growing_temp, max_growing_temp_monthly),1)}%")
 
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)
 
-st.plotly_chart(fig_map)
+st.plotly_chart(fig_map, use_container_width=True)
 
