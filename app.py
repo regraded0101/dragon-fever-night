@@ -1,6 +1,12 @@
 import streamlit as st
 import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+
+
 from src.pull_data import pullData
+
+
 
 st.set_page_config(page_title='French Wine Weather')
 
@@ -54,8 +60,6 @@ plot_data = data_month_year[(data_month_year['year'] == selected_year) & (data_m
 
 
 
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 
 fig = go.Figure()
@@ -98,7 +102,6 @@ fig.add_annotation(
 )
 
 
-import plotly.express as px
 
 stationsData = pd.read_csv('data/france-weather-stations.csv')
 
