@@ -65,8 +65,8 @@ fig.add_trace(go.Scatter(x=plot_data['month'], y=plot_data["tmax_month"], name="
 fig.add_trace(go.Scatter(x = plot_data['month'], y = plot_data['tmin'], name="Min Temp", line_color="#0474BA"))
 fig.add_trace(go.Scatter(x=plot_data['month'], y=plot_data["tmin_month"], name="Min Temp (Monthly Average)", line_dash="dash", line_color="#0474BA", opacity=0.5))
 
+
 fig.update_layout(
-    #plot_bgcolor='#FFFFFF',
         yaxis=dict(range=[-10, 45],
                    showticklabels=False,
                    showgrid=False
@@ -75,26 +75,24 @@ fig.update_layout(
                     x=0.5,
                     y=-0.1,
                     orientation='h'
-        )
+        ),
 )
+
+
+
 fig.add_vline(
     x = 'Mar',
     line_dash = 'dash',
 )
-fig.add_annotation(
-    x="Mar",
-    y = 45,
-    text="Growth Cycle Start",
-    showarrow=False
-)
+
 fig.add_vline(
     x='Oct',
     line_dash='dash',
 )
 fig.add_annotation(
-    x = 'Oct',
+    x = 'Jun',
     y = 45,
-    text = 'Harvest',
+    text = 'Grape Growing Season',
     showarrow=False
 )
 
