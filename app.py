@@ -123,24 +123,28 @@ fig_map.update_layout(geo=dict(
 
 fig_map.update_traces(hovertemplate='%{customdata[0]}')
 
-col1, col2= st.columns([1,2])
+with st.expander("Instructions"):
+    st.write("""
+        Open the sidebar panel on the left and input the wine region and year of the wine to get temperatures from nearby weather stations and how they compare to averages across multiple years.\n
+        If you cannot see the sidebar, press on the arrow at the top of this page to open the sidebar
+    """)
+
+col1, col2, col3 = st.columns(3)
 
 
 col1.metric("Average Growing Temperature", 
             f"{round(avg_growing_temp,1)} {chr(176)}",
             f"{round(percentage_diff(avg_growing_temp, avg_growing_temp_monthly),1)}%")
 
-col1.metric("Minimum Growing Temperature", 
+col2.metric("Minimum Growing Temperature", 
             f"{round(min_growing_temp,1)} {chr(176)}",
             f"{round(percentage_diff(min_growing_temp, min_growing_temp_monthly),1)}%")
 
-col1.metric("Maximum Growing Temperature", 
+col3.metric("Maximum Growing Temperature", 
             f"{round(max_growing_temp,1)} {chr(176)}",
             f"{round(percentage_diff(max_growing_temp, max_growing_temp_monthly),1)}%")
-col2.plotly_chart(fig_map)
 
-
-#col1, col2 = st.columns(2)
-#with col1:
-#with col2:
 st.plotly_chart(fig)
+
+st.plotly_chart(fig_map)
+
