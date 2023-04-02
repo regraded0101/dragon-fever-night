@@ -133,7 +133,8 @@ fig_map.update_traces(hovertemplate='%{customdata[0]}')
 with st.expander("Instructions"):
     st.write("""
         Open the sidebar panel on the left and input the wine region and year of the wine to get temperatures from nearby weather stations and how they compare to averages across multiple years.\n
-        If you cannot see the sidebar, press on the arrow at the top of this page to open the sidebar
+        If you cannot see the sidebar, press on the arrow at the top of this page to open the sidebar.
+        Higher temperatures mean riper grapes earlier and a change in the wine's flavour!
     """)
 
 col1, col2, col3 = st.columns(3)
