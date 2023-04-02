@@ -72,9 +72,10 @@ fig.update_layout(
                    showgrid=False
                    ),
         legend=dict(
-                    x=0.5,
-                    y=-0.1,
-                    orientation='h'
+                    x=-0.1,
+                    y=0.95,
+                    traceorder='normal',
+                    orientation='v'
         ),
 )
 
@@ -108,7 +109,7 @@ fig_map = px.scatter_geo(
     lat="latitude",
     scope="europe",
     hover_data=["hover_text"],
-    title=f"Weather Station Data for {selected_wine_region}",
+    title=f"Weather Station Data for {selected_wine_region.replace(', France','')}",
     )
 
 # Set the zoom level
