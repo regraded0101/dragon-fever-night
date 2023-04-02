@@ -1,7 +1,3 @@
-pygeos
-pandas
-geopandas
-streamlit
-folium
-requests
 plotly
+pandas
+streamlit
