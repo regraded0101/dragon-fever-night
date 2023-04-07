@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 
-from src.pull_data import pullData, formatData, percentage_diff, get_temp_stats
+from src.pull_data import pullData, formatData, percentageDiff, getTempStats
 
 st.set_page_config(page_title='French Wine Weather')
 
@@ -18,7 +18,7 @@ selected_year = st.sidebar.selectbox("Year", options=data_month_year["year"].sor
 
 
 
-avg_growing_temp, avg_growing_temp_monthly, min_growing_temp, min_growing_temp_monthly, max_growing_temp, max_growing_temp_monthly = get_temp_stats(df=data_month_year,
+avg_growing_temp, avg_growing_temp_monthly, min_growing_temp, min_growing_temp_monthly, max_growing_temp, max_growing_temp_monthly = getTempStats(df=data_month_year,
                             selected_year=selected_year,
                             selected_wine_region=selected_wine_region)
 
@@ -110,15 +110,15 @@ col1, col2, col3 = st.columns(3)
 
 col1.metric("Average Growing Temperature", 
             f"{round(avg_growing_temp,1)} {chr(176)}",
-            f"{round(percentage_diff(avg_growing_temp, avg_growing_temp_monthly),1)}%")
+            f"{round(percentageDiff(avg_growing_temp, avg_growing_temp_monthly),1)}%")
 
 col2.metric("Minimum Growing Temperature", 
             f"{round(min_growing_temp,1)} {chr(176)}",
-            f"{round(percentage_diff(min_growing_temp, min_growing_temp_monthly),1)}%")
+            f"{round(percentageDiff(min_growing_temp, min_growing_temp_monthly),1)}%")
 
 col3.metric("Maximum Growing Temperature", 
             f"{round(max_growing_temp,1)} {chr(176)}",
-            f"{round(percentage_diff(max_growing_temp, max_growing_temp_monthly),1)}%")
+            f"{round(percentageDiff(max_growing_temp, max_growing_temp_monthly),1)}%")
 
 # st.plotly_chart(fig, use_container_width=True)
 

@@ -60,7 +60,7 @@ def formatData(df):
 
     return df
 
-def percentage_diff(new, old):
+def percentageDiff(new, old):
     return 100*(new - old)/old 
 
 def getTempStats(df, selected_year, selected_wine_region):
