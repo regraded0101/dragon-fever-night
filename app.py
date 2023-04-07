@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 
-from src.pull_data import pullData, formatData, percentageDiff, getTempStats
+from src.pull_data import pullGSheets, formatData, percentageDiff, getTempStats
 from src.pull_plots import plotTimeSeries, plotStationsMap
 
 st.set_page_config(page_title="French Wine Weather")
@@ -12,9 +12,8 @@ st.set_page_config(page_title="French Wine Weather")
 
 @st.cache_data
 def pull_data():
-    data_month_year = pullData()
+    data_month_year, stations_data = pullGSheets()
     data_month_year = formatData(df=data_month_year)
-    stations_data = pd.read_csv("data/france-weather-stations.csv")
 
     return data_month_year, stations_data
 

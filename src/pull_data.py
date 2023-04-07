@@ -4,9 +4,9 @@ from gsheetsdb import connect
 import pandas as pd
 
 
-def pullData():
+def pullGSheets():
     """
-    function to pull data from google sheets - needs breaking up!
+    function to pull data from google sheets
 
     """
 
@@ -28,12 +28,15 @@ def pullData():
         return rows
 
     weather_sheet_url = st.secrets["private_gsheets_url_weather_data"]
+    station_sheet_url = st.secrets["private_gsheets_url_station_data"]
 
-    df = pd.read_sql(f'SELECT * FROM "{weather_sheet_url}"', conn)
-    df["year"] = df["year"].astype(int)
-    df["month"] = df["month"].astype(int)
+    df_weather = pd.read_sql(f'SELECT * FROM "{weather_sheet_url}"', conn)
+    df_weather["year"] = df_weather["year"].astype(int)
+    df_weather["month"] = df_weather["month"].astype(int)
 
-    return df
+    df_station = pd.read_sql(f'SELECT * FROM "{station_sheet_url}"', conn)
+
+    return df_weather, df_station
 
 
 def formatData(df):
