@@ -27,9 +27,9 @@ def pullData():
         rows = rows.fetchall()
         return rows
 
-    sheet_url = st.secrets["private_gsheets_url"]
+    weather_sheet_url = st.secrets["private_gsheets_url_weather_data"]
 
-    df = pd.read_sql(f'SELECT * FROM "{sheet_url}"', conn)
+    df = pd.read_sql(f'SELECT * FROM "{weather_sheet_url}"', conn)
     df["year"] = df["year"].astype(int)
     df["month"] = df["month"].astype(int)
 
