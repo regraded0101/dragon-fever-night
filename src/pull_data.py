@@ -100,8 +100,3 @@ def getTempStats(df, selected_year, selected_wine_region):
         max_growing_temp,
         max_growing_temp_monthly,
     )
-
-
-# data_month_year = pullData()
-# data_month_year = formatData(df = data_month_year)
-# print(data_month_year)
