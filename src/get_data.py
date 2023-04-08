@@ -123,6 +123,7 @@ if __name__ == "__main__":
     end = "2022-12-31"
     weather_data = pd.DataFrame()
 
+    places.extend(places_italy)
     for place in places:
         print(f"Attempting: {place}")
 
@@ -131,19 +132,19 @@ if __name__ == "__main__":
         weather_data = pd.concat([weather_data, monthly_weather_data])
         print("Success")
 
-    weather_data.to_csv("data/france_regions_weather_data.csv", index=False)
+    weather_data.to_csv("data/regions_weather_data.csv", index=False)
 
-    weather_data_italy = pd.DataFrame()
+    # weather_data_italy = pd.DataFrame()
 
-    for place_italy in places_italy:
-        print(f"Attempting: {place_italy}")
+    # for place_italy in places_italy:
+    #     print(f"Attempting: {place_italy}")
 
-        daily_weather_data_italy = FetchData(place_italy, start, end).combine_weather_data()
-        monthly_weather_data_italy = get_summary_stats(daily_weather_data_italy)
-        weather_data_italy = pd.concat([weather_data_italy, monthly_weather_data_italy])
-        print("Success")
+    #     daily_weather_data_italy = FetchData(place_italy, start, end).combine_weather_data()
+    #     monthly_weather_data_italy = get_summary_stats(daily_weather_data_italy)
+    #     weather_data_italy = pd.concat([weather_data_italy, monthly_weather_data_italy])
+    #     print("Success")
 
-    weather_data_italy.to_csv("data/italy_regions_weather_data.csv")
+    # weather_data_italy.to_csv("data/italy_regions_weather_data.csv")
 
 
     station_data = pd.DataFrame()
@@ -161,4 +162,20 @@ if __name__ == "__main__":
         station_data = pd.concat([station_data, placeStationData])
 
     print("Finished created weather stations data")
-    station_data.to_csv("data/france-weather-stations.csv")
+    station_data.to_csv("data/weather-stations.csv")
+
+    # station_data_italy = pd.DataFrame()
+    # print("Creating Italy weather stations data...")
+    # for place_italy in places_italy:
+    #     stationClass = FetchData(place_italy, start, end)
+    #     stationClassLoc = stationClass.get_lat_long()
+    #     placeStationData = stationClass.get_close_station_ids(stationClassLoc)
+    #     placeStationData["hover_text"] = placeStationData.apply(
+    #         lambda x: f'<b>{x["name"]}</b><br>Latitude: {x["latitude"]}<br>Longitude: {x["longitude"]:,}<br>Elevation: {x["elevation"]}',
+    #         axis=1,
+    #     )
+    #     placeStationData["wine_region"] = place_italy
+    #     station_data_italy = pd.concat([station_data_italy, placeStationData])
+
+    # print("Finished created Italy weather stations data")
+    # station_data_italy.to_csv("data/italy-weather-stations.csv")
