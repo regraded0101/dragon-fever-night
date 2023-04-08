@@ -114,6 +114,11 @@ if __name__ == "__main__":
         places = [row[0] for row in reader]
         places = places[1:]  # drop the header
 
+    with open("data/italy-wine-regions.csv", newline="") as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
+        places_italy = [row[0] for row in reader]
+        places_italy = places_italy[1:] # drop the header
+
     start = "2000-01-01"
     end = "2022-12-31"
     weather_data = pd.DataFrame()
@@ -127,6 +132,19 @@ if __name__ == "__main__":
         print("Success")
 
     weather_data.to_csv("data/france_regions_weather_data.csv", index=False)
+
+    weather_data_italy = pd.DataFrame()
+
+    for place_italy in places_italy:
+        print(f"Attempting: {place_italy}")
+
+        daily_weather_data_italy = FetchData(place_italy, start, end).combine_weather_data()
+        monthly_weather_data_italy = get_summary_stats(daily_weather_data_italy)
+        weather_data_italy = pd.concat([weather_data_italy, monthly_weather_data_italy])
+        print("Success")
+
+    weather_data_italy.to_csv("data/italy_regions_weather_data.csv")
+
 
     station_data = pd.DataFrame()
     print("Creating weather stations data...")
