@@ -13,31 +13,43 @@ class FetchData:
         self.end_date = end_date
 
     def get_lat_long(self):
-        geolocator = Nominatim(user_agent="my_user_agent")
-        loc = geolocator.geocode(self.place)
-        return loc
+        loc = None
+        while not loc:
+            try:
+                geolocator = Nominatim(user_agent="my_user_agent")
+                loc = geolocator.geocode(self.place)
+                return loc
+            except:
+                continue
 
-    def get_close_station_ids(self, loc, search_distance=75000):
-        stations = Stations()
-        stations = stations.nearby(loc.latitude, loc.longitude)
-        station = stations.fetch()
+    def get_close_station_ids(self, loc, search_distance=100000):
+        stations = None
+        station = None
+        while not stations:
+            while not station:
+                try:
+                    stations = Stations()
+                    stations = stations.nearby(loc.latitude, loc.longitude)
+                    station = stations.fetch()
 
-        # only return stations within 50kms
-        station = station[station["distance"] <= search_distance]
-        try:
-            if len(station) == 0:
-                raise ValueError(
-                    f"No weather stations near {self.place} could be found.\nIgnoring, increase the `search_distance` argument to find weather stations.\nCurrent set at {search_distance}"
-                )
-            return station
-        except ValueError as error:
-            print("Warning: ", str(error))
-            pass
+                    # only return stations within search_distance (given to the meter)
+                    station = station[station["distance"] <= search_distance]
+                    try:
+                        if len(station) == 0:
+                            raise ValueError(
+                                f"No weather stations near {self.place} could be found.\nIgnoring, increase the `search_distance` argument to find weather stations.\nCurrent set at {search_distance}"
+                            )
+                        return station
+                    except ValueError as error:
+                        print("Warning: ", str(error))
+                        pass
+                except:
+                    continue
 
     def get_all_weather_data(self):
         # Get Daily data
         loc = self.get_lat_long()
-        station_id = self.get_close_station_ids(loc, search_distance=75000)
+        station_id = self.get_close_station_ids(loc, search_distance=100000)
         if station_id is not None:
             data_list = []
             for j in range(len(station_id.index)):
