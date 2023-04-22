@@ -85,8 +85,8 @@ def plotStationsMap(stations_data, selected_wine_region):
 
     # Set the zoom level
     fig_map.update_layout(
-        geo=dict(
-            scope="europe", projection_scale=4, center=dict(lat=42.163739, lon=9.018092)
+        geo=dict( 
+            scope="europe", projection_scale=3, center=dict(lat=41.557414, lon=5.748498)
         ),
         margin=dict(l=0, r=0, t=50, b=0),
         title={"x": 0.28, "y": 0.95},
