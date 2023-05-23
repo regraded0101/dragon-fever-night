@@ -7,7 +7,7 @@ import plotly.express as px
 from src.pull_data import pullGSheets, formatData, percentageDiff, getTempStats
 from src.pull_plots import plotTimeSeries, plotStationsMap
 
-st.set_page_config(page_title="French Wine Weather")
+st.set_page_config(page_title="European Wine Weather")
 
 
 @st.cache_data
